@@ -1,0 +1,159 @@
+"""
+Точка входа для синхронизации извещений 44-ФЗ из ЕИС в нашу БД.
+
+Запуск вручную:
+    python -m app.services.parsers.eis.sync --region 77 --date 2026-07-08
+
+Пока рассчитано на ручной/cron-запуск по одному региону и дате за раз —
+этого достаточно, чтобы проверить всю цепочку на реальных данных.
+Планировщик (Celery/APScheduler, перебор всех регионов и дат) —
+следующий шаг, после того как убедимся, что сама интеграция работает.
+"""
+
+import argparse
+import asyncio
+import io
+import logging
+import zipfile
+from datetime import date, datetime
+
+from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+
+from app.db.session import async_session_maker
+from app.models.customer import Customer
+from app.models.enums import ProcurementLaw, TenderSource, TenderStatus
+from app.models.tender import Tender
+from app.services.parsers.eis.client import EISClient, EISClientError
+from app.services.parsers.eis.document_types import DEFAULT_DOCUMENT_TYPES, NOTIFICATION_SUBSYSTEM_TYPE
+from app.services.parsers.eis.xml_mapper import ParsedNotification, parse_notification_xml
+
+logger = logging.getLogger(__name__)
+
+
+def _extract_xml_files(archive_bytes: bytes) -> list[bytes]:
+    """
+    Распаковывает архив в памяти. Архивы ЕИС бывают вложенные
+    (zip внутри zip) — разворачиваем один уровень вложенности на всякий
+    случай, дальше вложенности на практике не встречалось в описаниях.
+    """
+    xml_files: list[bytes] = []
+    with zipfile.ZipFile(io.BytesIO(archive_bytes)) as outer_zip:
+        for name in outer_zip.namelist():
+            if name.lower().endswith(".xml"):
+                xml_files.append(outer_zip.read(name))
+            elif name.lower().endswith(".zip"):
+                try:
+                    with zipfile.ZipFile(io.BytesIO(outer_zip.read(name))) as inner_zip:
+                        for inner_name in inner_zip.namelist():
+                            if inner_name.lower().endswith(".xml"):
+                                xml_files.append(inner_zip.read(inner_name))
+                except zipfile.BadZipFile:
+                    logger.warning("Не удалось развернуть вложенный архив %s", name)
+    return xml_files
+
+
+async def _get_or_create_customer(session, inn: str | None, name: str | None) -> Customer | None:
+    if not inn and not name:
+        return None
+    if inn:
+        result = await session.execute(select(Customer).where(Customer.inn == inn))
+        existing = result.scalar_one_or_none()
+        if existing:
+            return existing
+    customer = Customer(inn=inn, name=name or f"Заказчик ИНН {inn}")
+    session.add(customer)
+    await session.flush()
+    return customer
+
+
+async def _upsert_tender(session, parsed: ParsedNotification, region: str) -> None:
+    customer = await _get_or_create_customer(session, parsed.customer_inn, parsed.customer_name)
+
+    values = dict(
+        source=TenderSource.EIS_44FZ,
+        external_id=parsed.external_id,
+        law=ProcurementLaw.FZ_44,
+        title=parsed.title,
+        okpd2_codes=parsed.okpd2_codes,
+        procurement_method=parsed.procurement_method,
+        status=parsed.status,
+        customer_id=customer.id if customer else None,
+        initial_price=parsed.initial_price,
+        region=region,
+        published_at=parsed.published_at,
+        submission_deadline=parsed.submission_deadline,
+        raw_data=parsed.raw_data,
+    )
+
+    stmt = pg_insert(Tender).values(**values)
+    update_cols = {k: v for k, v in values.items() if k not in ("source", "external_id")}
+    stmt = stmt.on_conflict_do_update(
+        constraint="uq_tender_source_external_id",
+        set_=update_cols,
+    )
+    await session.execute(stmt)
+
+
+async def sync_region_date(
+    region: str,
+    exact_date: date,
+    document_types: list[str] | None = None,
+    token: str | None = None,
+) -> dict[str, int]:
+    """Синхронизирует все извещения заданных типов по региону за одну дату. Возвращает статистику."""
+    document_types = document_types or DEFAULT_DOCUMENT_TYPES
+    client = EISClient(token=token)
+    stats = {"requested": 0, "downloaded": 0, "parsed": 0, "saved": 0, "errors": 0}
+
+    async with async_session_maker() as session:
+        for document_type in document_types:
+            stats["requested"] += 1
+            try:
+                archive_ref = client.request_archive(
+                    org_region=region,
+                    exact_date=exact_date,
+                    document_type=document_type,
+                    subsystem_type=NOTIFICATION_SUBSYSTEM_TYPE,
+                )
+                archive_bytes = client.download_archive(archive_ref)
+                stats["downloaded"] += 1
+            except EISClientError as exc:
+                logger.warning("Пропускаю %s за %s (регион %s): %s", document_type, exact_date, region, exc)
+                stats["errors"] += 1
+                continue
+
+            xml_files = _extract_xml_files(archive_bytes)
+            for xml_bytes in xml_files:
+                parsed = parse_notification_xml(xml_bytes, document_type)
+                if parsed is None:
+                    continue
+                stats["parsed"] += 1
+                try:
+                    await _upsert_tender(session, parsed, region)
+                    stats["saved"] += 1
+                except Exception:
+                    logger.exception("Не удалось сохранить закупку %s", parsed.external_id)
+                    stats["errors"] += 1
+
+        await session.commit()
+
+    return stats
+
+
+def _cli() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+
+    parser = argparse.ArgumentParser(description="Синхронизация извещений 44-ФЗ из ЕИС")
+    parser.add_argument("--region", required=True, help="Код региона заказчика, напр. 77 (Москва)")
+    parser.add_argument("--date", required=True, help="Дата в формате YYYY-MM-DD")
+    parser.add_argument("--token", default=None, help="Токен ЕИС (по умолчанию — из EIS_TOKEN в .env)")
+    args = parser.parse_args()
+
+    exact_date = datetime.strptime(args.date, "%Y-%m-%d").date()
+    stats = asyncio.run(sync_region_date(region=args.region, exact_date=exact_date, token=args.token))
+    logger.info("Готово: %s", stats)
+
+
+if __name__ == "__main__":
+    _cli()
