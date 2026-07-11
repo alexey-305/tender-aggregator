@@ -1,23 +1,50 @@
+version: "3.9"
+
 services:
   postgres:
     image: postgres:16
     container_name: tender_postgres
-    restart: always
     environment:
       POSTGRES_USER: tender
-      POSTGRES_PASSWORD: tender_password
-      POSTGRES_DB: tender_db
+      POSTGRES_PASSWORD: tender
+      POSTGRES_DB: tender_aggregator
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tender"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  redis:
-    image: redis:7
-    container_name: tender_redis
-    restart: always
+  opensearch:
+    image: opensearchproject/opensearch:2.17.0
+    container_name: tender_opensearch
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
-      - "6379:6379"
+      - "9200:9200"
+    volumes:
+      - osdata:/usr/share/opensearch/data
+
+  api:
+    build: .
+    container_name: tender_api
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      opensearch:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/code/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 volumes:
-  postgres_data:
+  pgdata:
+  osdata:
