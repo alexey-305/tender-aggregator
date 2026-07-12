@@ -1,14 +1,14 @@
-"""
-Клиент SOAP-сервиса отдачи информации ЕИС (getDocsIP).
+﻿"""
+РљР»РёРµРЅС‚ SOAP-СЃРµСЂРІРёСЃР° РѕС‚РґР°С‡Рё РёРЅС„РѕСЂРјР°С†РёРё Р•РРЎ (getDocsIP).
 
-Пришёл на смену FTP-серверу zakupki.gov.ru, закрытому с 01.01.2025.
-Формат запроса подтверждён по нескольким независимым практическим
-источникам (официальная инструкция ЕИС + опыт разработчиков в 2024-2025),
-но НЕ протестирован против реального сервиса из этого окружения —
-zakupki.gov.ru недоступен из песочницы, где писался этот код.
-Первый реальный прогон нужно делать в вашем окружении с вашим токеном
-и внимательно смотреть на текст ошибки, если она будет — сервис у ЕИС
-исторически нестабилен и менял адреса/поведение несколько раз за 2025 год.
+РџСЂРёС€С‘Р» РЅР° СЃРјРµРЅСѓ FTP-СЃРµСЂРІРµСЂСѓ zakupki.gov.ru, Р·Р°РєСЂС‹С‚РѕРјСѓ СЃ 01.01.2025.
+Р¤РѕСЂРјР°С‚ Р·Р°РїСЂРѕСЃР° РїРѕРґС‚РІРµСЂР¶РґС‘РЅ РїРѕ РЅРµСЃРєРѕР»СЊРєРёРј РЅРµР·Р°РІРёСЃРёРјС‹Рј РїСЂР°РєС‚РёС‡РµСЃРєРёРј
+РёСЃС‚РѕС‡РЅРёРєР°Рј (РѕС„РёС†РёР°Р»СЊРЅР°СЏ РёРЅСЃС‚СЂСѓРєС†РёСЏ Р•РРЎ + РѕРїС‹С‚ СЂР°Р·СЂР°Р±РѕС‚С‡РёРєРѕРІ РІ 2024-2025),
+РЅРѕ РќР• РїСЂРѕС‚РµСЃС‚РёСЂРѕРІР°РЅ РїСЂРѕС‚РёРІ СЂРµР°Р»СЊРЅРѕРіРѕ СЃРµСЂРІРёСЃР° РёР· СЌС‚РѕРіРѕ РѕРєСЂСѓР¶РµРЅРёСЏ вЂ”
+zakupki.gov.ru РЅРµРґРѕСЃС‚СѓРїРµРЅ РёР· РїРµСЃРѕС‡РЅРёС†С‹, РіРґРµ РїРёСЃР°Р»СЃСЏ СЌС‚РѕС‚ РєРѕРґ.
+РџРµСЂРІС‹Р№ СЂРµР°Р»СЊРЅС‹Р№ РїСЂРѕРіРѕРЅ РЅСѓР¶РЅРѕ РґРµР»Р°С‚СЊ РІ РІР°С€РµРј РѕРєСЂСѓР¶РµРЅРёРё СЃ РІР°С€РёРј С‚РѕРєРµРЅРѕРј
+Рё РІРЅРёРјР°С‚РµР»СЊРЅРѕ СЃРјРѕС‚СЂРµС‚СЊ РЅР° С‚РµРєСЃС‚ РѕС€РёР±РєРё, РµСЃР»Рё РѕРЅР° Р±СѓРґРµС‚ вЂ” СЃРµСЂРІРёСЃ Сѓ Р•РРЎ
+РёСЃС‚РѕСЂРёС‡РµСЃРєРё РЅРµСЃС‚Р°Р±РёР»РµРЅ Рё РјРµРЅСЏР» Р°РґСЂРµСЃР°/РїРѕРІРµРґРµРЅРёРµ РЅРµСЃРєРѕР»СЊРєРѕ СЂР°Р· Р·Р° 2025 РіРѕРґ.
 """
 
 import subprocess
@@ -26,8 +26,8 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-# Реальное значение SOAPAction взято из живого WSDL сервиса (проверено:
-# GET .../getDocsIP?wsdl вернул 200 и это значение в wsdl:binding).
+# Р РµР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ SOAPAction РІР·СЏС‚Рѕ РёР· Р¶РёРІРѕРіРѕ WSDL СЃРµСЂРІРёСЃР° (РїСЂРѕРІРµСЂРµРЅРѕ:
+# GET .../getDocsIP?wsdl РІРµСЂРЅСѓР» 200 Рё СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ РІ wsdl:binding).
 SOAP_ACTION = "http://zakupki.gov.ru/fz44/queue/ws/get-docs-ip"
 
 SOAP_ENVELOPE_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
@@ -54,22 +54,22 @@ SOAP_ENVELOPE_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
   </soapenv:Body>
 </soapenv:Envelope>"""
 
-# Порядок дочерних тегов в selectionParams важен для ЕИС — сервер отклоняет
-# запрос с "правильными" тегами в "неправильном" порядке (это подтверждено
-# на практике несколькими независимо друг от друга разработчиками).
+# РџРѕСЂСЏРґРѕРє РґРѕС‡РµСЂРЅРёС… С‚РµРіРѕРІ РІ selectionParams РІР°Р¶РµРЅ РґР»СЏ Р•РРЎ вЂ” СЃРµСЂРІРµСЂ РѕС‚РєР»РѕРЅСЏРµС‚
+# Р·Р°РїСЂРѕСЃ СЃ "РїСЂР°РІРёР»СЊРЅС‹РјРё" С‚РµРіР°РјРё РІ "РЅРµРїСЂР°РІРёР»СЊРЅРѕРј" РїРѕСЂСЏРґРєРµ (СЌС‚Рѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРѕ
+# РЅР° РїСЂР°РєС‚РёРєРµ РЅРµСЃРєРѕР»СЊРєРёРјРё РЅРµР·Р°РІРёСЃРёРјРѕ РґСЂСѓРі РѕС‚ РґСЂСѓРіР° СЂР°Р·СЂР°Р±РѕС‚С‡РёРєР°РјРё).
 
 
 class EISClientError(Exception):
-    """Ошибка при обращении к сервису отдачи информации ЕИС."""
+    """РћС€РёР±РєР° РїСЂРё РѕР±СЂР°С‰РµРЅРёРё Рє СЃРµСЂРІРёСЃСѓ РѕС‚РґР°С‡Рё РёРЅС„РѕСЂРјР°С†РёРё Р•РРЎ."""
 
 
 class EISAuthError(EISClientError):
-    """Токен не принят сервисом (просрочен/невалиден/не тот тип сервиса)."""
+    """РўРѕРєРµРЅ РЅРµ РїСЂРёРЅСЏС‚ СЃРµСЂРІРёСЃРѕРј (РїСЂРѕСЃСЂРѕС‡РµРЅ/РЅРµРІР°Р»РёРґРµРЅ/РЅРµ С‚РѕС‚ С‚РёРї СЃРµСЂРІРёСЃР°)."""
 
 
 @dataclass
 class ArchiveReference:
-    """Ссылка на архив с документами, полученная в ответ на запрос."""
+    """РЎСЃС‹Р»РєР° РЅР° Р°СЂС…РёРІ СЃ РґРѕРєСѓРјРµРЅС‚Р°РјРё, РїРѕР»СѓС‡РµРЅРЅР°СЏ РІ РѕС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃ."""
 
     url: str
     document_type: str
@@ -81,16 +81,16 @@ class EISClient:
     def __init__(self, token: str | None = None, soap_url: str | None = None) -> None:
         self.token = token or settings.eis_token
         self.real_soap_url = soap_url or settings.eis_soap_url
-        # Если задан локальный ГОСТ-TLS туннель — физически ходим туда напрямую (httpx).
+        # Р•СЃР»Рё Р·Р°РґР°РЅ Р»РѕРєР°Р»СЊРЅС‹Р№ Р“РћРЎРў-TLS С‚СѓРЅРЅРµР»СЊ вЂ” С„РёР·РёС‡РµСЃРєРё С…РѕРґРёРј С‚СѓРґР° РЅР°РїСЂСЏРјСѓСЋ (httpx).
         self.eis_local_proxy_url = settings.eis_local_proxy_url
-        # Если задан ГОСТ-совместимый curl (например, из КриптоПро CSP:
-        # /opt/cprocsp/bin/curl) — ходим через subprocess-вызов этого curl,
-        # т.к. обычный httpx/OpenSSL ГОСТ-TLS не поддерживает.
+        # Р•СЃР»Рё Р·Р°РґР°РЅ Р“РћРЎРў-СЃРѕРІРјРµСЃС‚РёРјС‹Р№ curl (РЅР°РїСЂРёРјРµСЂ, РёР· РљСЂРёРїС‚РѕРџСЂРѕ CSP:
+        # /opt/cprocsp/bin/curl) вЂ” С…РѕРґРёРј С‡РµСЂРµР· subprocess-РІС‹Р·РѕРІ СЌС‚РѕРіРѕ curl,
+        # С‚.Рє. РѕР±С‹С‡РЅС‹Р№ httpx/OpenSSL Р“РћРЎРў-TLS РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚.
         self.curl_binary = settings.eis_curl_binary
         if not self.token:
             raise EISAuthError(
-                "Не задан EIS_TOKEN. Получить токен: личный кабинет ЕИС -> "
-                "pmd.zakupki.gov.ru/pmd/lk/token (требуется действующая ЭЦП)."
+                "РќРµ Р·Р°РґР°РЅ EIS_TOKEN. РџРѕР»СѓС‡РёС‚СЊ С‚РѕРєРµРЅ: Р»РёС‡РЅС‹Р№ РєР°Р±РёРЅРµС‚ Р•РРЎ -> "
+                "pmd.zakupki.gov.ru/pmd/lk/token (С‚СЂРµР±СѓРµС‚СЃСЏ РґРµР№СЃС‚РІСѓСЋС‰Р°СЏ Р­Р¦Рџ)."
             )
 
     def _build_request(self, org_region: str, subsystem_type: str, document_type: str, exact_date: date) -> str:
@@ -106,7 +106,7 @@ class EISClient:
         )
 
     def _via_tunnel(self, real_url: str) -> str:
-        """Подменяет схему+хост на туннельный (если задан eis_local_proxy_url), сохраняя путь и query."""
+        """РџРѕРґРјРµРЅСЏРµС‚ СЃС…РµРјСѓ+С…РѕСЃС‚ РЅР° С‚СѓРЅРЅРµР»СЊРЅС‹Р№ (РµСЃР»Рё Р·Р°РґР°РЅ eis_local_proxy_url), СЃРѕС…СЂР°РЅСЏСЏ РїСѓС‚СЊ Рё query."""
         if not self.eis_local_proxy_url:
             return real_url
         from urllib.parse import urlsplit, urlunsplit
@@ -117,9 +117,9 @@ class EISClient:
 
     def _run_curl(self, args: list[str], stdin_data: bytes | None = None) -> bytes:
         """
-        Запускает ГОСТ-TLS-совместимый curl из КриптоПро как отдельный процесс.
-        Это обходной путь для сред, где нет ни ГОСТ-плагина для системного
-        OpenSSL, ни готового туннеля (stunnel) — только сам curl из состава CSP.
+        Р—Р°РїСѓСЃРєР°РµС‚ Р“РћРЎРў-TLS-СЃРѕРІРјРµСЃС‚РёРјС‹Р№ curl РёР· РљСЂРёРїС‚РѕРџСЂРѕ РєР°Рє РѕС‚РґРµР»СЊРЅС‹Р№ РїСЂРѕС†РµСЃСЃ.
+        Р­С‚Рѕ РѕР±С…РѕРґРЅРѕР№ РїСѓС‚СЊ РґР»СЏ СЃСЂРµРґ, РіРґРµ РЅРµС‚ РЅРё Р“РћРЎРў-РїР»Р°РіРёРЅР° РґР»СЏ СЃРёСЃС‚РµРјРЅРѕРіРѕ
+        OpenSSL, РЅРё РіРѕС‚РѕРІРѕРіРѕ С‚СѓРЅРЅРµР»СЏ (stunnel) вЂ” С‚РѕР»СЊРєРѕ СЃР°Рј curl РёР· СЃРѕСЃС‚Р°РІР° CSP.
         """
         cmd = [self.curl_binary, "-sS", "--fail-with-body", *args]
         try:
@@ -131,14 +131,14 @@ class EISClient:
                 check=False,
             )
         except FileNotFoundError as exc:
-            raise EISClientError(f"Не найден curl по пути {self.curl_binary}: {exc}") from exc
+            raise EISClientError(f"РќРµ РЅР°Р№РґРµРЅ curl РїРѕ РїСѓС‚Рё {self.curl_binary}: {exc}") from exc
         except subprocess.TimeoutExpired as exc:
-            raise EISClientError(f"curl не ответил за отведённое время: {exc}") from exc
+            raise EISClientError(f"curl РЅРµ РѕС‚РІРµС‚РёР» Р·Р° РѕС‚РІРµРґС‘РЅРЅРѕРµ РІСЂРµРјСЏ: {exc}") from exc
 
         if result.returncode != 0:
             stderr_text = result.stderr.decode("utf-8", errors="replace")
             raise EISClientError(
-                f"curl завершился с кодом {result.returncode}: {stderr_text[:1000] or result.stdout[:1000]}"
+                f"curl Р·Р°РІРµСЂС€РёР»СЃСЏ СЃ РєРѕРґРѕРј {result.returncode}: {stderr_text[:1000] or result.stdout[:1000]}"
             )
         return result.stdout
 
@@ -161,7 +161,7 @@ class EISClient:
                         "-X", "POST",
                         "-H", f"Content-Type: {headers['Content-Type']}",
                         "-H", f"SOAPAction: {headers['SOAPAction']}",
-                        "-H", "Expect:",  # отключаем Expect: 100-continue — часть серверов рвёт соединение на нём
+                        "-H", "Expect:",  # РѕС‚РєР»СЋС‡Р°РµРј Expect: 100-continue вЂ” С‡Р°СЃС‚СЊ СЃРµСЂРІРµСЂРѕРІ СЂРІС‘С‚ СЃРѕРµРґРёРЅРµРЅРёРµ РЅР° РЅС‘Рј
                         "--data-binary", f"@{tmp_path}",
                         self.real_soap_url,
                     ]
@@ -173,16 +173,16 @@ class EISClient:
             with httpx.Client(timeout=60.0) as client:
                 response = client.post(url, content=xml_body.encode("utf-8"), headers=headers)
             if response.status_code == 401 or response.status_code == 403:
-                raise EISAuthError(f"ЕИС отклонила токен (HTTP {response.status_code}). Проверьте срок действия.")
+                raise EISAuthError(f"Р•РРЎ РѕС‚РєР»РѕРЅРёР»Р° С‚РѕРєРµРЅ (HTTP {response.status_code}). РџСЂРѕРІРµСЂСЊС‚Рµ СЃСЂРѕРє РґРµР№СЃС‚РІРёСЏ.")
             if response.status_code != 200:
-                raise EISClientError(f"ЕИС вернула HTTP {response.status_code}: {response.text[:500]}")
+                raise EISClientError(f"Р•РРЎ РІРµСЂРЅСѓР»Р° HTTP {response.status_code}: {response.text[:500]}")
             content = response.content
 
         try:
             return etree.fromstring(content)
         except etree.XMLSyntaxError as exc:
             raise EISClientError(
-                f"Не удалось распарсить ответ ЕИС как XML: {exc}. Начало ответа: {content[:300]!r}"
+                f"РќРµ СѓРґР°Р»РѕСЃСЊ СЂР°СЃРїР°СЂСЃРёС‚СЊ РѕС‚РІРµС‚ Р•РРЎ РєР°Рє XML: {exc}. РќР°С‡Р°Р»Рѕ РѕС‚РІРµС‚Р°: {content[:300]!r}"
             ) from exc
 
     def request_archive(
@@ -193,25 +193,25 @@ class EISClient:
         subsystem_type: str = "PRIZ",
     ) -> ArchiveReference:
         """
-        Запрашивает у ЕИС формирование архива документов заданного типа
-        по региону заказчика за конкретную дату. Возвращает ссылку на архив
-        — сам архив в этом же ответе НЕ приходит, его нужно скачать отдельно
-        (см. download_archive), с тем же токеном в заголовке.
+        Р—Р°РїСЂР°С€РёРІР°РµС‚ Сѓ Р•РРЎ С„РѕСЂРјРёСЂРѕРІР°РЅРёРµ Р°СЂС…РёРІР° РґРѕРєСѓРјРµРЅС‚РѕРІ Р·Р°РґР°РЅРЅРѕРіРѕ С‚РёРїР°
+        РїРѕ СЂРµРіРёРѕРЅСѓ Р·Р°РєР°Р·С‡РёРєР° Р·Р° РєРѕРЅРєСЂРµС‚РЅСѓСЋ РґР°С‚Сѓ. Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃСЃС‹Р»РєСѓ РЅР° Р°СЂС…РёРІ
+        вЂ” СЃР°Рј Р°СЂС…РёРІ РІ СЌС‚РѕРј Р¶Рµ РѕС‚РІРµС‚Рµ РќР• РїСЂРёС…РѕРґРёС‚, РµРіРѕ РЅСѓР¶РЅРѕ СЃРєР°С‡Р°С‚СЊ РѕС‚РґРµР»СЊРЅРѕ
+        (СЃРј. download_archive), СЃ С‚РµРј Р¶Рµ С‚РѕРєРµРЅРѕРј РІ Р·Р°РіРѕР»РѕРІРєРµ.
         """
         xml_body = self._build_request(org_region, subsystem_type, document_type, exact_date)
         root = self._post(xml_body)
 
-        # Ответ приходит в SOAP-конверте; ищем archiveUrl без привязки к
-        # конкретному префиксу namespace (сервис ЕИС использовал разные —
-        # ns2, ip и т.д. в зависимости от версии), поэтому ищем по local-name.
+        # РћС‚РІРµС‚ РїСЂРёС…РѕРґРёС‚ РІ SOAP-РєРѕРЅРІРµСЂС‚Рµ; РёС‰РµРј archiveUrl Р±РµР· РїСЂРёРІСЏР·РєРё Рє
+        # РєРѕРЅРєСЂРµС‚РЅРѕРјСѓ РїСЂРµС„РёРєСЃСѓ namespace (СЃРµСЂРІРёСЃ Р•РРЎ РёСЃРїРѕР»СЊР·РѕРІР°Р» СЂР°Р·РЅС‹Рµ вЂ”
+        # ns2, ip Рё С‚.Рґ. РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РІРµСЂСЃРёРё), РїРѕСЌС‚РѕРјСѓ РёС‰РµРј РїРѕ local-name.
         archive_url_elements = root.xpath("//*[local-name()='archiveUrl']")
         if not archive_url_elements or not archive_url_elements[0].text:
             fault_elements = root.xpath("//*[local-name()='faultstring' or local-name()='errorMessage']")
             if fault_elements:
-                raise EISClientError(f"ЕИС вернула ошибку: {fault_elements[0].text}")
+                raise EISClientError(f"Р•РРЎ РІРµСЂРЅСѓР»Р° РѕС€РёР±РєСѓ: {fault_elements[0].text}")
             raise EISClientError(
-                "В ответе ЕИС не найден archiveUrl. Данных за эту дату/регион/тип может не быть, "
-                "либо изменился формат ответа сервиса — нужно свериться со свежей интеграционной схемой "
+                "Р’ РѕС‚РІРµС‚Рµ Р•РРЎ РЅРµ РЅР°Р№РґРµРЅ archiveUrl. Р”Р°РЅРЅС‹С… Р·Р° СЌС‚Сѓ РґР°С‚Сѓ/СЂРµРіРёРѕРЅ/С‚РёРї РјРѕР¶РµС‚ РЅРµ Р±С‹С‚СЊ, "
+                "Р»РёР±Рѕ РёР·РјРµРЅРёР»СЃСЏ С„РѕСЂРјР°С‚ РѕС‚РІРµС‚Р° СЃРµСЂРІРёСЃР° вЂ” РЅСѓР¶РЅРѕ СЃРІРµСЂРёС‚СЊСЃСЏ СЃРѕ СЃРІРµР¶РµР№ РёРЅС‚РµРіСЂР°С†РёРѕРЅРЅРѕР№ СЃС…РµРјРѕР№ "
                 f"({self.real_soap_url}?xsd=getDocsIP-ws-api.xsd)."
             )
 
@@ -229,11 +229,7 @@ class EISClient:
         retry=retry_if_exception_type((httpx.TransportError, EISClientError)),
     )
     def download_archive(self, archive_ref: ArchiveReference) -> bytes:
-        """
-        Скачивает zip-архив с документами. Токен нужно передать повторно —
-        ссылка сама по себе токеном не защищена, это отдельный шаг, который
-        легко упустить (в паре источников это отмечено как "неочевидный момент").
-        """
+        "Скачивает zip-архив с документами."
         if self.curl_binary:
             return self._run_curl(["-H", f"individualPerson_token: {self.token}", archive_ref.url])
 
@@ -244,3 +240,15 @@ class EISClient:
         if response.status_code != 200:
             raise EISClientError(f"Не удалось скачать архив (HTTP {response.status_code}): {archive_ref.url}")
         return response.content
+
+    def download_archive_raw(self, url: str) -> bytes:
+        if self.curl_binary:
+            return self._run_curl(["-H", f"individualPerson_token: {self.token}", url])
+        headers = {"individualPerson_token": self.token}
+        proxy_url = self._via_tunnel(url)
+        with httpx.Client(timeout=120.0, follow_redirects=True) as client:
+            response = client.get(proxy_url, headers=headers)
+        if response.status_code != 200:
+            raise EISClientError(f"Не удалось скачать архив (HTTP {response.status_code}): {url}")
+        return response.content
+

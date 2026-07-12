@@ -1,6 +1,4 @@
-version: "3.9"
-
-services:
+﻿services:
   postgres:
     image: postgres:16
     container_name: tender_postgres
@@ -18,12 +16,24 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: tender_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   opensearch:
     image: opensearchproject/opensearch:2.17.0
     container_name: tender_opensearch
     environment:
       - discovery.type=single-node
       - plugins.security.disabled=true
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=TenderOS2026!
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
@@ -37,13 +47,39 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      opensearch:
-        condition: service_started
+      redis:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
       - ./app:/code/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  celery_worker:
+    build: .
+    container_name: tender_celery
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/code/app
+    command: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=2
+
+  celery_beat:
+    build: .
+    container_name: tender_beat
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/code/app
+    command: celery -A app.tasks.celery_app beat --loglevel=info
 
 volumes:
   pgdata:
