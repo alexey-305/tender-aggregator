@@ -1,4 +1,4 @@
-"""init tenders schema
+init tenders schema
 
 Revision ID: 8b0280093b61
 Revises: 

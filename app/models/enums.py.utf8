@@ -1,0 +1,5 @@
+import enum
+
+
+class TenderSource(str, enum.Enum):
+    """Р

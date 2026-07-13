@@ -1,0 +1,49 @@
+п»ї"""
+Orchestrator вЂ” Р·Р°РїСѓСЃРєР°РµС‚ РІСЃРµ Р°РєС‚РёРІРЅС‹Рµ Collector'С‹ РїРѕ СЂР°СЃРїРёСЃР°РЅРёСЋ.
+"""
+
+import logging
+from datetime import datetime, timezone
+from app.services.collectors.base import BaseCollector, CollectionConfig, CollectionResult
+
+logger = logging.getLogger(__name__)
+
+
+class CollectorOrchestrator:
+    def __init__(self, collectors: list[BaseCollector] | None = None):
+        self.collectors = collectors or []
+
+    def register(self, collector: BaseCollector) -> None:
+        self.collectors.append(collector)
+
+    async def run_all(self, config: CollectionConfig | None = None) -> list[CollectionResult]:
+        results: list[CollectionResult] = []
+        for collector in self.collectors:
+            logger.info("Р—Р°РїСѓСЃРє РєРѕР»Р»РµРєС‚РѕСЂР°: %s", collector.source_name)
+            try:
+                result = await collector.collect(config)
+                logger.info("РљРѕР»Р»РµРєС‚РѕСЂ %s Р·Р°РІРµСЂС€С‘РЅ: saved=%d errors=%d", collector.source_name, result.saved, result.errors)
+            except Exception:
+                logger.exception("РљРѕР»Р»РµРєС‚РѕСЂ %s СѓРїР°Р» СЃ РѕС€РёР±РєРѕР№", collector.source_name)
+                result = CollectionResult(
+                    source=collector.source_name,
+                    started_at=datetime.now(timezone.utc),
+                    finished_at=datetime.now(timezone.utc),
+                    errors=1,
+                )
+            results.append(result)
+        return results
+
+
+_orchestrator: CollectorOrchestrator | None = None
+
+
+def get_orchestrator() -> CollectorOrchestrator:
+    global _orchestrator
+    if _orchestrator is None:
+        from app.services.collectors import EISCollector
+        from app.services.collectors.eis_223_collector import EIS223Collector
+        _orchestrator = CollectorOrchestrator()
+        _orchestrator.register(EISCollector())
+        _orchestrator.register(EIS223Collector())
+    return _orchestrator

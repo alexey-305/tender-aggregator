@@ -1,0 +1,39 @@
+п»їimport uuid
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel
+from sqlalchemy import select, delete
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.session import get_db
+from app.models.tender_mark import TenderMark
+
+router = APIRouter()
+
+class MarkCreate(BaseModel):
+    name: str
+    color: str = "#fba500"
+
+class MarkOut(BaseModel):
+    id: str
+    name: str
+    color: str
+    count: int = 0
+
+@router.get("", response_model=list[MarkOut])
+async def list_marks(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(TenderMark).order_by(TenderMark.created_at.desc()))
+    marks = result.scalars().all()
+    return [{"id": str(m.id), "name": m.name, "color": m.color, "count": 0} for m in marks]
+
+@router.post("", response_model=MarkOut)
+async def create_mark(body: MarkCreate, db: AsyncSession = Depends(get_db)):
+    mark = TenderMark(name=body.name, color=body.color)
+    db.add(mark)
+    await db.commit()
+    await db.refresh(mark)
+    return {"id": str(mark.id), "name": mark.name, "color": mark.color, "count": 0}
+
+@router.delete("/{mark_id}")
+async def delete_mark(mark_id: str, db: AsyncSession = Depends(get_db)):
+    await db.execute(delete(TenderMark).where(TenderMark.id == mark_id))
+    await db.commit()
+    return {"ok": True}

@@ -1,0 +1,39 @@
+п»їimport logging
+from opensearchpy import OpenSearch
+from app.core.config import get_settings
+
+settings = get_settings()
+logger = logging.getLogger(__name__)
+
+TENDER_MAPPING = {
+    "properties": {
+        "title": {"type": "text", "analyzer": "russian"},
+        "description": {"type": "text", "analyzer": "russian"},
+        "external_id": {"type": "keyword"},
+        "source": {"type": "keyword"},
+        "law": {"type": "keyword"},
+        "status": {"type": "keyword"},
+        "procurement_method": {"type": "keyword"},
+        "region": {"type": "keyword"},
+        "initial_price": {"type": "float"},
+        "customer_name": {"type": "text"},
+        "customer_inn": {"type": "keyword"},
+        "okpd2_codes": {"type": "keyword"},
+        "published_at": {"type": "date"},
+        "submission_deadline": {"type": "date"},
+    }
+}
+
+
+class SearchService:
+
+    def __init__(self):
+        self.client = OpenSearch(
+            hosts=[f"http://{settings.opensearch_host}:{settings.opensearch_port}"],
+        )
+        self.index_name = settings.opensearch_index_tenders
+
+    def ensure_index(self):
+        if not self.client.indices.exists(index=self.index_name):
+            self.client.indices.create(index=self.index_name, body={"mappings": TENDER_MAPPING})
+            logger.info("Р

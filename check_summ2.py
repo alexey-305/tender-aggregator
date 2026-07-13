@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 from app.db.session import async_session_maker
 from app.models.tender import Tender
 from sqlalchemy import select

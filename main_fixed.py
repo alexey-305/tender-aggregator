@@ -1,4 +1,4 @@
-﻿from fastapi import FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.tenders import router as tenders_router
 from app.api.v1.documents import router as documents_router
