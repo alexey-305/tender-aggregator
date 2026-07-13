@@ -7,7 +7,7 @@ import api from "../api/client";
 
 export default function Layout() {
   const [selectedTender, setSelectedTender] = useState(null);
-  const [activeKey, setActiveKey] = useState(null);
+  const [activeKey, setactiveKey] = useState(null);
   const [activeMark, setActiveMark] = useState(null);
   const [tenders, setTenders] = useState([]);
   const [tenderMarks, setTenderMarks] = useState(() => { try { return JSON.parse(localStorage.getItem('tenderMarks') || '{}'); } catch { return {}; } });
@@ -27,7 +27,7 @@ export default function Layout() {
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[var(--bg-primary)]">
       <div className="w-64 flex-shrink-0">
-        <Sidebar onSelectKey={setActiveKey} onSelectMark={setActiveMark} activeMarkId={activeMark?.id} />
+        <Sidebar onSelectKey={setactiveKey} onSelectMark={setActiveMark} activeMarkId={activeMark?.id} />
       </div>
       <div className="flex-1 flex flex-col min-w-0">
         <KanbanBar tenders={tenders} onSelectTender={handleSelectTender} tenderMarks={tenderMarks} />
@@ -43,4 +43,6 @@ export default function Layout() {
     </div>
   );
 }
+
+
 

@@ -46,10 +46,10 @@ export default function Sidebar({ onSelectKey, onSelectMark, activeMarkId }) {
           <div className="flex items-center justify-between cursor-pointer py-1" onClick={() => setKeysExpanded(!keysExpanded)}>
             <div className="flex items-center gap-2">
               <Key size={14} className="text-[var(--text-secondary)]" />
-              <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase">Ключи</span>
+              <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase">Шаблоны</span>
             </div>
             <div className="flex items-center gap-1">
-              <button onClick={(e) => { e.stopPropagation(); navigate("/settings"); }} className="p-0.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors" title="Добавить ключ">
+              <button onClick={(e) => { e.stopPropagation(); navigate("/settings"); }} className="p-0.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors" title="Добавить шаблон">
                 <Plus size={14} />
               </button>
               {keysExpanded ? <ChevronUp size={14} className="text-[var(--text-secondary)]" /> : <ChevronDown size={14} className="text-[var(--text-secondary)]" />}
@@ -58,7 +58,7 @@ export default function Sidebar({ onSelectKey, onSelectMark, activeMarkId }) {
           {keysExpanded && (
             <div className="mt-1">
               {keys.length === 0 ? (
-                <div className="text-xs text-[var(--text-secondary)] px-2 py-3 text-center">Нет ключей. Нажмите + чтобы создать.</div>
+                <div className="text-xs text-[var(--text-secondary)] px-2 py-3 text-center">Нет шаблонов. Нажмите + чтобы создать.</div>
               ) : (
                 <div className="space-y-0.5">
                   {keys.map((key) => (
@@ -137,3 +137,5 @@ export default function Sidebar({ onSelectKey, onSelectMark, activeMarkId }) {
     </div>
   );
 }
+
+
