@@ -1,0 +1,15 @@
+﻿<Modal isOpen={showRegions} onClose={() => setShowRegions(false)} title="егион поставки" footer={<><button onClick={() => setShowRegions(false)} className="px-5 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)]">ыбрать</button><button onClick={() => setShowRegions(false)} className="px-5 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm hover:text-white">тменить</button></>}>
+        <div className="flex flex-col gap-1 max-h-96 overflow-y-auto">
+          <button onClick={() => setRegion("се регионы")} className={"text-left px-3 py-2 rounded-lg text-sm " + (region === "се регионы" ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white")}>се регионы</button>
+          {Object.entries(REGIONS_BY_DISTRICT).map(([district, regs]) => (
+            <details key={district} className="group">
+              <summary className="px-3 py-2 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white cursor-pointer font-medium">{district}</summary>
+              <div className="ml-3 flex flex-col gap-0.5 mt-1">
+                {regs.filter(r => r !== "се регионы").map(r => (
+                  <button key={r} onClick={() => setRegion(r)} className={"text-left px-3 py-1.5 rounded-lg text-xs " + (region === r ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white")}>{r}</button>
+                ))}
+              </div>
+            </details>
+          ))}
+        </div>
+      </Modal>
