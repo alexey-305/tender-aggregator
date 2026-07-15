@@ -41,3 +41,7 @@ body {
   background: var(--border);
   border-radius: 3px;
 }
+.truncate, [class*="truncate"] {
+  text-indent: 0 !important;
+  padding-left: 0 !important;
+}
