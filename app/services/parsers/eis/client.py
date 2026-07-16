@@ -121,7 +121,7 @@ class EISClient:
         Р­С‚Рѕ РѕР±С…РѕРґРЅРѕР№ РїСѓС‚СЊ РґР»СЏ СЃСЂРµРґ, РіРґРµ РЅРµС‚ РЅРё Р“РћРЎРў-РїР»Р°РіРёРЅР° РґР»СЏ СЃРёСЃС‚РµРјРЅРѕРіРѕ
         OpenSSL, РЅРё РіРѕС‚РѕРІРѕРіРѕ С‚СѓРЅРЅРµР»СЏ (stunnel) вЂ” С‚РѕР»СЊРєРѕ СЃР°Рј curl РёР· СЃРѕСЃС‚Р°РІР° CSP.
         """
-        cmd = [self.curl_binary, "-sS", "--fail-with-body", *args]
+        cmd = [self.curl_binary, "-sS", *args]
         try:
             result = subprocess.run(
                 cmd,
@@ -151,6 +151,7 @@ class EISClient:
     def _post(self, xml_body: str) -> etree._Element:
         headers = {"Content-Type": "text/xml; charset=utf-8", "SOAPAction": SOAP_ACTION}
 
+        print("USING CURL")
         if self.curl_binary:
             with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as tmp:
                 tmp.write(xml_body.encode("utf-8"))
@@ -170,7 +171,7 @@ class EISClient:
                 tmp_path.unlink(missing_ok=True)
         else:
             url = self._via_tunnel(self.real_soap_url)
-            with httpx.Client(timeout=60.0) as client:
+            with httpx.Client(timeout=60.0, verify=False) as client:
                 response = client.post(url, content=xml_body.encode("utf-8"), headers=headers)
             if response.status_code == 401 or response.status_code == 403:
                 raise EISAuthError(f"Р•РРЎ РѕС‚РєР»РѕРЅРёР»Р° С‚РѕРєРµРЅ (HTTP {response.status_code}). РџСЂРѕРІРµСЂСЊС‚Рµ СЃСЂРѕРє РґРµР№СЃС‚РІРёСЏ.")
@@ -230,23 +231,25 @@ class EISClient:
     )
     def download_archive(self, archive_ref: ArchiveReference) -> bytes:
         "Скачивает zip-архив с документами."
+        print("USING CURL")
         if self.curl_binary:
             return self._run_curl(["-H", f"individualPerson_token: {self.token}", archive_ref.url])
 
         headers = {"individualPerson_token": self.token}
         url = self._via_tunnel(archive_ref.url)
-        with httpx.Client(timeout=120.0, follow_redirects=True) as client:
+        with httpx.Client(timeout=120.0, follow_redirects=True, verify=False) as client:
             response = client.get(url, headers=headers)
         if response.status_code != 200:
             raise EISClientError(f"Не удалось скачать архив (HTTP {response.status_code}): {archive_ref.url}")
         return response.content
 
     def download_archive_raw(self, url: str) -> bytes:
+        print("USING CURL")
         if self.curl_binary:
             return self._run_curl(["-H", f"individualPerson_token: {self.token}", url])
         headers = {"individualPerson_token": self.token}
         proxy_url = self._via_tunnel(url)
-        with httpx.Client(timeout=120.0, follow_redirects=True) as client:
+        with httpx.Client(timeout=120.0, follow_redirects=True, verify=False) as client:
             response = client.get(proxy_url, headers=headers)
         if response.status_code != 200:
             raise EISClientError(f"Не удалось скачать архив (HTTP {response.status_code}): {url}")

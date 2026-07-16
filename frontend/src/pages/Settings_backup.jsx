@@ -2,7 +2,6 @@
 import api from "../api/client";
 import { Plus, Trash2, ArrowLeft, X, ChevronDown } from "lucide-react";
 import Modal from "../components/Modal";
-import REGIONS_DATA from "../data/regions_full.json";
 
 const REGIONS = ["Все регионы","Белгородская область","Брянская область","Владимирская область","Воронежская область","Ивановская область","Калужская область","Костромская область","Курская область","Липецкая область","Московская область","Орловская область","Рязанская область","Смоленская область","Тамбовская область","Тверская область","Тульская область","Ярославская область","Город Москва","Астраханская область","Волгоградская область","Краснодарский край","Республика Адыгея","Республика Калмыкия","Республика Крым","Ростовская область","Севастополь","Республика Карелия","Республика Коми","Архангельская область","Вологодская область","Калининградская область","Ленинградская область","Мурманская область","Новгородская область","Псковская область","Санкт-Петербург","Ненецкий АО","Республика Саха (Якутия)","Камчатский край","Приморский край","Хабаровский край","Амурская область","Магаданская область","Сахалинская область","Еврейская АО","Чукотский АО","Республика Алтай","Республика Бурятия","Республика Тыва","Республика Хакасия","Алтайский край","Забайкальский край","Красноярский край","Иркутская область","Кемеровская область","Новосибирская область","Омская область","Томская область","Курганская область","Свердловская область","Тюменская область","Челябинская область","Ханты-Мансийский АО","Ямало-Ненецкий АО","Республика Башкортостан","Республика Марий Эл","Республика Мордовия","Республика Татарстан","Удмуртская Республика","Чувашская Республика","Кировская область","Нижегородская область","Оренбургская область","Пензенская область","Пермский край","Самарская область","Саратовская область","Ульяновская область","Республика Дагестан","Республика Ингушетия","Кабардино-Балкарская Республика","Карачаево-Черкесская Республика","Республика Северная Осетия","Чеченская Республика","Ставропольский край"];
 
@@ -45,7 +44,7 @@ export default function Settings() {
   const [keywordInput, setKeywordInput] = useState("");
   const [excludeWords, setExcludeWords] = useState([]);
   const [excludeInput, setExcludeInput] = useState("");
-  const [regions, setRegions] = useState([]);
+  const [region, setRegion] = useState("Все регионы");
   const [showRegions, setShowRegions] = useState(false);
   const [platforms, setPlatforms] = useState(["Все площадки"]);
   const [showPlatforms, setShowPlatforms] = useState(false);
@@ -86,7 +85,7 @@ export default function Settings() {
   };
   const resetForm = () => {
     setName(""); setKeywords([]); setExcludeWords([]); setColor("#fba500");
-    setRegions([]); setPlatforms(["Все площадки"]); setMethods(["all"]);
+    setRegion("Все регионы"); setPlatforms(["Все площадки"]); setMethods(["all"]);
     setPriceFrom(""); setPriceTo(""); setNotify(false); setEditId(null);
     setLawTypes(["44-ФЗ","223-ФЗ"]); setAdvance44(false); setAdvance223(false); setNoAdvance(false);
     setSecurityAppFrom(""); setSecurityAppTo(""); setNoSecurityApp(false);
@@ -96,7 +95,7 @@ export default function Settings() {
   const handleCreate = async () => {
     if (!name.trim()) return;
     if (tab === "keys") {
-      const data = { name, keywords: keywords.join(", ") || null, region: regions.join(",") || null, price_from: priceFrom || null, price_to: priceTo || null };
+      const data = { name, keywords: keywords.join(", ") || null, region: region !== "Все регионы" ? region : null, price_from: priceFrom || null, price_to: priceTo || null };
       if (editId) await api.put("/keys/" + editId, data);
       else await api.post("/keys", data);
       const r = await api.get("/keys"); setKeys(r.data);
@@ -111,7 +110,7 @@ export default function Settings() {
     if (tab === "keys") { await api.delete("/keys/" + id); setKeys(keys.filter(k => k.id !== id)); }
     else { await api.delete("/marks/" + id); setMarks(marks.filter(m => m.id !== id)); }
   };
-  const handleEdit = (item) => { setEditId(item.id); setName(item.name); setKeywords(item.keywords ? item.keywords.split(", ") : []); setRegions(item.region ? item.region.split(",") : []); setPlatforms(item.platforms ? item.platforms.split(",") : ["Все площадки"]); setMethods(item.methods ? item.methods.split(",") : ["all"]); setPriceFrom(item.price_from || ""); setPriceTo(item.price_to || ""); setShowForm(true); };
+  const handleEdit = (item) => { setEditId(item.id); setName(item.name); setKeywords(item.keywords ? item.keywords.split(", ") : []); setRegion(item.region || "Все регионы"); setShowForm(true); };
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] p-8">
@@ -157,7 +156,7 @@ export default function Settings() {
 
             <div>
               <label className="text-xs text-[var(--text-secondary)] mb-2 block">Регион поставки</label>
-              <button onClick={() => setShowRegions(true)} className="flex items-center justify-between w-full p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-white text-sm hover:border-[var(--accent)]">{regions.length > 0 ? regions.map(r => { for (const d of Object.values(REGIONS_DATA)) { if (d[r]) return d[r]; } return r; }).join(", ") : "Все регионы"} <ChevronDown size={16} /></button>
+              <button onClick={() => setShowRegions(true)} className="flex items-center justify-between w-full p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-white text-sm hover:border-[var(--accent)]">{region} <ChevronDown size={16} /></button>
             </div>
 
             <div>
@@ -173,12 +172,12 @@ export default function Settings() {
 
             <div>
               <label className="text-xs text-[var(--text-secondary)] mb-2 block">Способ отбора</label>
-              <button onClick={() => setShowMethods(true)} className="flex items-center justify-between w-full p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-white text-sm hover:border-[var(--accent)]">{methods.includes("all") ? "Все способы" : methods.filter(m => m !== "all").map(m => METHODS.find(x => x.id === m)?.label).join(", ") || "Все способы"} <ChevronDown size={16} /></button>
+              <button onClick={() => setShowMethods(true)} className="flex items-center justify-between w-full p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-white text-sm hover:border-[var(--accent)]">{methods.includes("all") ? "Все способы" : methods.map(m => METHODS.find(x => x.id === m)?.label).join(", ")} <ChevronDown size={16} /></button>
             </div>
 
             <div>
               <label className="text-xs text-[var(--text-secondary)] mb-2 block">Площадка</label>
-              <button onClick={() => setShowPlatforms(true)} className="flex items-center justify-between w-full p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-white text-sm hover:border-[var(--accent)]">{(platforms.length === 1 && platforms[0] === "Все площадки") || platforms.length === 0 ? "Все площадки" : platforms.filter(p => p !== "Все площадки").join(", ")} <ChevronDown size={16} /></button>
+              <button onClick={() => setShowPlatforms(true)} className="flex items-center justify-between w-full p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-white text-sm hover:border-[var(--accent)]">{platforms.includes("Все площадки") ? "Все площадки" : platforms.join(", ")} <ChevronDown size={16} /></button>
             </div>
 
             <div>
@@ -257,19 +256,19 @@ export default function Settings() {
       </div>
 
       {/* Модальные окна */}
-      <Modal isOpen={showRegions} onClose={() => setShowRegions(false)} title="Регион поставки" footer={<><button onClick={() => setShowRegions(false)} className="px-5 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)]">Выбрать</button><button onClick={() => { setRegions([]); setShowRegions(false); }} className="px-5 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm hover:text-white">Сбросить</button></>}>
-        <div className="flex flex-col gap-2 max-h-96 overflow-y-auto">{Object.entries(REGIONS_DATA).map(([district, regs]) => (<details key={district}><summary className="px-3 py-2 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white cursor-pointer font-medium">{district}</summary><div className="ml-4 mt-1 flex flex-col gap-1">{Object.entries(regs).map(([code, name]) => (<label key={code} className="flex items-center gap-2 px-2 py-1 rounded text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] cursor-pointer"><input type="checkbox" checked={regions.includes(code)} onChange={() => setRegions(prev => prev.includes(code) ? prev.filter(r => r !== code) : [...prev, code])} className="rounded" />{name}</label>))}</div></details>))}</div>
+      <Modal isOpen={showRegions} onClose={() => setShowRegions(false)} title="Регион поставки" footer={<><button onClick={() => setShowRegions(false)} className="px-5 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)]">Выбрать</button><button onClick={() => setShowRegions(false)} className="px-5 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm hover:text-white">Отменить</button></>}>
+        <div className="flex flex-col gap-1 max-h-96 overflow-y-auto">{REGIONS.map((r) => (<button key={r} onClick={() => setRegion(r)} className={"text-left px-3 py-2 rounded-lg text-sm " + (region === r ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white")}>{r}</button>))}</div>
       </Modal>
 
-      <Modal isOpen={showPlatforms} onClose={() => setShowPlatforms(false)} title="Площадки" footer={<><button onClick={() => setShowPlatforms(false)} className="px-5 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)]">Применить</button><button onClick={() => setShowPlatforms(false)} className="px-5 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm hover:text-white">Сбросить</button></>}>
+      <Modal isOpen={showPlatforms} onClose={() => setShowPlatforms(false)} title="Площадки" footer={<><button onClick={() => setShowPlatforms(false)} className="px-5 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)]">Применить</button><button onClick={() => setShowPlatforms(false)} className="px-5 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm hover:text-white">Отменить</button></>}>
         <div className="flex flex-col gap-1 max-h-96 overflow-y-auto">{PLATFORMS.map((p) => (<label key={p} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] cursor-pointer"><input type="checkbox" checked={platforms.includes(p)} onChange={() => toggleItem(p, platforms, setPlatforms)} className="rounded" /> {p}</label>))}</div>
       </Modal>
 
-      <Modal isOpen={showMethods} onClose={() => setShowMethods(false)} title="Способ отбора" footer={<><button onClick={() => setShowMethods(false)} className="px-5 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)]">Применить</button><button onClick={() => setShowMethods(false)} className="px-5 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm hover:text-white">Сбросить</button></>}>
+      <Modal isOpen={showMethods} onClose={() => setShowMethods(false)} title="Способ отбора" footer={<><button onClick={() => setShowMethods(false)} className="px-5 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)]">Применить</button><button onClick={() => setShowMethods(false)} className="px-5 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm hover:text-white">Отменить</button></>}>
         <div className="flex flex-col gap-1">{METHODS.map((m) => (<label key={m.id} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] cursor-pointer"><input type="checkbox" checked={methods.includes(m.id)} onChange={() => toggleItem(m.id, methods, setMethods)} className="rounded" /> {m.label}</label>))}</div>
       </Modal>
 
-      <Modal isOpen={showAdvantages} onClose={() => setShowAdvantages(false)} title="Преимущества и ограничения" footer={<><button onClick={() => setShowAdvantages(false)} className="px-5 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)]">Применить</button><button onClick={() => setShowAdvantages(false)} className="px-5 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm hover:text-white">Сбросить</button></>}>
+      <Modal isOpen={showAdvantages} onClose={() => setShowAdvantages(false)} title="Преимущества и ограничения" footer={<><button onClick={() => setShowAdvantages(false)} className="px-5 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)]">Применить</button><button onClick={() => setShowAdvantages(false)} className="px-5 py-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm hover:text-white">Отменить</button></>}>
         <div className="flex flex-col gap-3">
           {ADVANTAGES.map((adv) => (
             <div key={adv} className="flex items-center gap-3">
