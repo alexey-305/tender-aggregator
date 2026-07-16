@@ -221,7 +221,7 @@ export default function Settings() {
 
             <div>
               <label className="text-xs text-[var(--text-secondary)] mb-2 block">Преимущества и ограничения</label>
-              <button onClick={() => setShowAdvantages(true)} className="flex items-center justify-between w-full p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-white text-sm hover:border-[var(--accent)]">Не учитывать <ChevronDown size={16} /></button>
+              <button onClick={() => setShowAdvantages(true)} className="flex items-center justify-between w-full p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-white text-sm hover:border-[var(--accent)]">{Object.values(advantages).filter(v => v).length > 0 ? Object.entries(advantages).filter(([k,v]) => v).map(([k,v]) => k + ": " + v).join(", ") : "Не учитывать"} <ChevronDown size={16} /></button>
             </div>
 
             <div className="flex items-center gap-3 pt-4 border-t border-[var(--border)]">
