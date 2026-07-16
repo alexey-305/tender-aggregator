@@ -44,6 +44,12 @@
     build: .
     container_name: tender_api
     env_file: .env
+    environment:
+      - database_url=postgresql+asyncpg://tender:tender@postgres:5432/tender_aggregator
+      - celery_broker_url=redis://redis:6379/0
+      - celery_result_backend=redis://redis:6379/1
+      - opensearch_host=opensearch
+      - opensearch_port=9200
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,6 +65,10 @@
     build: .
     container_name: tender_celery
     env_file: .env
+    environment:
+      - database_url=postgresql+asyncpg://tender:tender@postgres:5432/tender_aggregator
+      - celery_broker_url=redis://redis:6379/0
+      - celery_result_backend=redis://redis:6379/1
     depends_on:
       postgres:
         condition: service_healthy
@@ -72,6 +82,10 @@
     build: .
     container_name: tender_beat
     env_file: .env
+    environment:
+      - database_url=postgresql+asyncpg://tender:tender@postgres:5432/tender_aggregator
+      - celery_broker_url=redis://redis:6379/0
+      - celery_result_backend=redis://redis:6379/1
     depends_on:
       postgres:
         condition: service_healthy

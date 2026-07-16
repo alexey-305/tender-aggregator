@@ -74,7 +74,7 @@ export default function TenderList({ onSelect, selectedId, activeKey }) {
   const [searchNumber, setSearchNumber] = useState("");
 
   useEffect(() => { console.log("activeKey:", activeKey);
-    api.get(activeKey ? "/tenders/filter?keywords=" + encodeURIComponent(activeKey.keywords || "") + "&region=" + (activeKey.region || "") + "&law=" + (activeKey.law || "") + "&price_from=" + (activeKey.price_from || "") + "&price_to=" + (activeKey.price_to || "") : "/tenders?limit=100").then((res) => { setTenders(res.data); }).catch(() => {});
+    api.get(activeKey ? "/tenders/filter?keywords=" + encodeURIComponent(activeKey.keywords || "") + "&region=" + (activeKey.region || "") + "&law=" + (activeKey.law || "") + "&price_from=" + (activeKey.price_from || "") + "&price_to=" + (activeKey.price_to || "") + "&platforms=" + (activeKey.platforms || "") + "&methods=" + (activeKey.methods || "") : "/tenders?limit=100").then((res) => { setTenders(res.data); }).catch(() => {});
   }, [activeKey]);
 
   const grouped = groupByDate(tenders);
