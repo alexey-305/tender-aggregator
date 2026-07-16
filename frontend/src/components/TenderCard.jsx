@@ -66,9 +66,9 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
       const exists = prev.find(m => m.id === mark.id);
       let newMarks;
       if (exists) {
-        newMarks = prev.filter(m => m.id !== mark.id);
+        newMarks = [];
       } else {
-        newMarks = [...prev, mark];
+        newMarks = [mark];
       }
       if (onMarksChange && tender) {
         onMarksChange(tender.id, newMarks.map(m => m.name));
