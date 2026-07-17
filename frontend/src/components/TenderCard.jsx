@@ -24,7 +24,16 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showMarks]);
 
-  useEffect(() => { setLocalMarks((currentMarks || []).map(name => marks.find(m => m.name === name) || { id: name, name, color: "#ccc" })); setShowMarks(false); }, [tender?.id, currentMarks]);
+  useEffect(() => {
+    const mapped = (currentMarks || []).map(item => {
+      if (typeof item === 'string') {
+        return marks.find(m => m.name === item) || { id: item, name: item, color: "#ccc" };
+      }
+      return item;
+    });
+    setLocalMarks(mapped);
+    setShowMarks(false);
+  }, [tender?.id, currentMarks]);
 
   if (!tender) {
     return (
@@ -71,7 +80,8 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
         newMarks = [mark];
       }
       if (onMarksChange && tender) {
-        onMarksChange(tender.id, newMarks.map(m => m.name));
+        // Передаём объекты {name, color}
+        setTimeout(() => onMarksChange(tender.id, newMarks.map(m => ({ name: m.name, color: m.color }))), 0);
       }
       return newMarks;
     });
@@ -236,4 +246,3 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
     </div>
   );
 }
-

@@ -2,3 +2,4 @@
 from app.services.collectors.eis_collector import EISCollector
 
 __all__ = ["BaseCollector", "CollectionConfig", "CollectionResult", "EISCollector"]
+
