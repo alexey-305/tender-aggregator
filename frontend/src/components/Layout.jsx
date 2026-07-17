@@ -3,12 +3,12 @@ import Sidebar from "./Sidebar";
 import TenderList from "./TenderList";
 import TenderCard from "./TenderCard";
 import KanbanBar from "./KanbanBar";
+import SettingsPage from "../pages/Settings";
 import api from "../api/client";
 
 export default function Layout() {
   const [selectedTender, setSelectedTender] = useState(null);
   const [activeKey, setactiveKey] = useState(null);
-  const [activeMark, setActiveMark] = useState(null);
   const [tenders, setTenders] = useState([]);
   const [tenderMarks, setTenderMarks] = useState(() => {
     try {
@@ -17,6 +17,7 @@ export default function Layout() {
       return {};
     }
   });
+  const [page, setPage] = useState('dashboard'); // 'dashboard' | 'settings'
 
   useEffect(() => {
     api.get("/tenders?limit=60")
@@ -26,6 +27,7 @@ export default function Layout() {
 
   const handleSelectTender = (tender) => {
     setSelectedTender(tender);
+    setPage('dashboard');
   };
 
   const handleMarksChange = (tenderId, marks) => {
@@ -36,40 +38,47 @@ export default function Layout() {
     });
   };
 
-  console.log('Layout render — tenderMarks:', tenderMarks);
-
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[var(--bg-primary)]">
-      <div className="w-64 flex-shrink-0">
+      <div className="w-[296px] flex-shrink-0">
         <Sidebar
           onSelectKey={setactiveKey}
-          onSelectMark={setActiveMark}
-          activeMarkId={activeMark?.id}
+          onNavigate={(p) => setPage(p)}
         />
       </div>
       <div className="flex-1 flex flex-col min-w-0">
-        <KanbanBar
-          tenders={tenders}
-          onSelectTender={handleSelectTender}
-          tenderMarks={tenderMarks}
-        />
+        {page === 'dashboard' && (
+          <KanbanBar
+            tenders={tenders}
+            onSelectTender={handleSelectTender}
+            tenderMarks={tenderMarks}
+          />
+        )}
         <div className="flex flex-1 overflow-hidden">
-          <div className="w-[380px] flex-shrink-0 border-r border-[var(--border)]">
-            <TenderList
-              onSelect={handleSelectTender}
-              selectedId={selectedTender?.id}
-              activeKey={activeKey}
-              tenderMarks={tenderMarks}
-              tenders={tenders}
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <TenderCard
-              tender={selectedTender}
-              onMarksChange={handleMarksChange}
-              currentMarks={(selectedTender && tenderMarks[selectedTender.id]) || []}
-            />
-          </div>
+          {page === 'dashboard' ? (
+            <>
+              <div className="w-[534px] flex-shrink-0 border-r border-[var(--border)]">
+                <TenderList
+                  onSelect={handleSelectTender}
+                  selectedId={selectedTender?.id}
+                  activeKey={activeKey}
+                  tenderMarks={tenderMarks}
+                  tenders={tenders}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <TenderCard
+                  tender={selectedTender}
+                  onMarksChange={handleMarksChange}
+                  currentMarks={(selectedTender && tenderMarks[selectedTender.id]) || []}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 overflow-y-auto">
+              <SettingsPage />
+            </div>
+          )}
         </div>
       </div>
     </div>

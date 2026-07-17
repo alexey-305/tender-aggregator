@@ -1,13 +1,13 @@
 ﻿import { useState, useEffect } from "react";
 import { Bell, Key, Users, BarChart3, Settings, Trash2, ChevronUp, ChevronDown, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+
 import api from "../api/client";
 
-export default function Sidebar({ onSelectKey }) {
+export default function Sidebar({ onSelectKey, onNavigate }) {
   const [keys, setKeys] = useState([]);
   const [keysExpanded, setKeysExpanded] = useState(true);
   const [usersExpanded, setUsersExpanded] = useState(true);
-  const navigate = useNavigate();
+  
 
   useEffect(() => {
     api.get("/keys").then(res => setKeys(res.data)).catch(() => {});
@@ -40,13 +40,13 @@ export default function Sidebar({ onSelectKey }) {
 
       <div className="flex-1 overflow-y-auto">
         <div className="px-3 !py-2">
-          <div className="flex items-center justify-between cursor-pointer !py-1" onClick={() => setKeysExpanded(!keysExpanded)}>
+          <div className="flex items-center justify-between cursor-pointer !py-1" onClick={() => { setKeysExpanded(!keysExpanded); onNavigate && onNavigate('dashboard'); }}>
             <div className="flex items-center gap-2">
               <Key size={14} className="text-[var(--text-secondary)]" />
               <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase">Шаблоны</span>
             </div>
             <div className="flex items-center gap-1">
-              <button onClick={(e) => { e.stopPropagation(); navigate("/settings"); }} className="p-0.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors" title="Добавить шаблон">
+              <button onClick={(e) => { e.stopPropagation(); onNavigate && onNavigate("settings"); }} className="p-0.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors" title="Добавить шаблон">
                 <Plus size={14} />
               </button>
               {keysExpanded ? <ChevronUp size={14} className="text-[var(--text-secondary)]" /> : <ChevronDown size={14} className="text-[var(--text-secondary)]" />}
@@ -71,7 +71,7 @@ export default function Sidebar({ onSelectKey }) {
         </div>
 
         <div className="px-6 py-5">
-          <div className="flex items-center justify-between cursor-pointer !py-1" onClick={() => setUsersExpanded(!usersExpanded)}>
+          <div className="flex items-center justify-between cursor-pointer !py-1" onClick={() => { setUsersExpanded(!usersExpanded); onNavigate && onNavigate('dashboard'); }}>
             <div className="flex items-center gap-2">
               <Users size={14} className="text-[var(--text-secondary)]" />
               <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase">Пользователи</span>
@@ -90,7 +90,7 @@ export default function Sidebar({ onSelectKey }) {
         <div className="flex items-center gap-2 px-2 !!py-1.5 rounded cursor-pointer text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white">
           <BarChart3 size={14} /> Аналитика
         </div>
-        <div onClick={() => navigate("/settings")} className="flex items-center gap-2 px-2 !!py-1.5 rounded cursor-pointer text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white">
+        <div onClick={() => onNavigate && onNavigate("settings")} className="flex items-center gap-2 px-2 !!py-1.5 rounded cursor-pointer text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white">
           <Settings size={14} /> Настройки
         </div>
         <div className="flex items-center gap-2 px-2 !!py-1.5 rounded cursor-pointer text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white">
