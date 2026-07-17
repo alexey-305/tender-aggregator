@@ -40,7 +40,7 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
       <div className="h-full flex items-center justify-center bg-[var(--bg-primary)]">
         <div className="text-center text-[var(--text-secondary)]">
           <FileText size={48} className="mx-auto mb-4 opacity-30" />
-          <p className="text-lg text-white">Выберите закупку</p>
+          <p className="text-lg text-[var(--text-primary)]">Выберите закупку</p>
           <p className="text-sm mt-1">из списка слева</p>
         </div>
       </div>
@@ -92,7 +92,7 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
       <div className="p-6">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-white leading-snug mb-1">{tender.title}</h2>
+            <h2 className="text-lg font-bold text-[var(--text-primary)] leading-snug mb-1">{tender.title}</h2>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-500/20 text-blue-400">{tender.law}</span>
               <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
@@ -106,14 +106,14 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
             </div>
           </div>
           <div className="relative flex-shrink-0" ref={marksRef}>
-            <button onClick={() => setShowMarks(!showMarks)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-xs hover:text-white transition-colors">
+            <button onClick={() => setShowMarks(!showMarks)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-xs hover:text-[var(--text-primary)] transition-colors">
               <Tag size={14} /> Метка
             </button>
             {showMarks && (
               <div className="absolute right-0 top-full mt-1 w-56 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-xl shadow-xl z-20 py-1">
                 {marks.map((mark) => (
                   <button key={mark.id} onClick={() => handleToggleMark(mark)}
-                    className={"flex items-center gap-2 w-full px-3 py-2 text-xs text-left transition-colors " + (localMarks.find(m => m.id === mark.id) ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white")}>
+                    className={"flex items-center gap-2 w-full px-3 py-2 text-xs text-left transition-colors " + (localMarks.find(m => m.id === mark.id) ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]")}>
                     <div className="w-3 h-3 rounded flex-shrink-0" style={{ backgroundColor: mark.color }} />
                     {mark.name}
                   </button>
@@ -137,7 +137,7 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div>
             <div className="text-xs text-[var(--text-secondary)] mb-1">Цена контракта</div>
-            <div className="text-2xl font-bold text-white">{price} RUB</div>
+            <div className="text-2xl font-bold text-[var(--text-primary)]">{price} RUB</div>
           </div>
           <div>
             <div className="text-xs text-[var(--text-secondary)] mb-1">Обеспечение заявки</div>
@@ -154,7 +154,7 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
             <tbody>
               <tr className="border-b border-[var(--border)]">
                 <td className="py-2 text-[var(--text-secondary)] w-40">Заказчик</td>
-                <td className="py-2 text-white">
+                <td className="py-2 text-[var(--text-primary)]">
                   {customerName}
                   {customerInn && <span className="text-[var(--text-secondary)] ml-2">ИНН {customerInn}</span>}
                 </td>
@@ -162,7 +162,7 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
               {tender.region && (
                 <tr className="border-b border-[var(--border)]">
                   <td className="py-2 text-[var(--text-secondary)]">Место поставки</td>
-                  <td className="py-2 text-white">{tender.region}</td>
+                  <td className="py-2 text-[var(--text-primary)]">{tender.region}</td>
                 </tr>
               )}
             </tbody>
@@ -171,7 +171,7 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
 
         {tender.okpd2_codes && tender.okpd2_codes.length > 0 && (
           <div className="mb-6">
-            <div className="text-sm font-semibold text-white mb-2">Информация об объекте закупки</div>
+            <div className="text-sm font-semibold text-[var(--text-primary)] mb-2">Информация об объекте закупки</div>
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-[var(--text-secondary)] border-b border-[var(--border)]">
@@ -183,24 +183,24 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
               <tbody>
                 {tender.okpd2_codes.map((code, i) => (
                   <tr key={i} className="border-b border-[var(--border)]">
-                    <td className="py-2 text-white">{code}</td>
+                    <td className="py-2 text-[var(--text-primary)]">{code}</td>
                     <td className="py-2 text-[var(--text-secondary)]">1.0 усл ед</td>
-                    <td className="py-2 text-white text-right">{price} RUB</td>
+                    <td className="py-2 text-[var(--text-primary)] text-right">{price} RUB</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <div className="text-right text-sm font-semibold text-white mt-2">Итого: {price} RUB</div>
+            <div className="text-right text-sm font-semibold text-[var(--text-primary)] mt-2">Итого: {price} RUB</div>
           </div>
         )}
 
         <div className="mb-6">
-          <div className="text-sm font-semibold text-white mb-3">Порядок размещения заказа</div>
+          <div className="text-sm font-semibold text-[var(--text-primary)] mb-3">Порядок размещения заказа</div>
           <table className="w-full text-sm">
             <tbody>
               <tr className="border-b border-[var(--border)]">
                 <td className="py-2 text-[var(--text-secondary)] w-56">Дата и время начала подачи заявок</td>
-                <td className="py-2 text-white">{tender.published_at ? new Date(tender.published_at).toLocaleString("ru-RU") : "—"}</td>
+                <td className="py-2 text-[var(--text-primary)]">{tender.published_at ? new Date(tender.published_at).toLocaleString("ru-RU") : "—"}</td>
               </tr>
               <tr className="border-b border-[var(--border)]">
                 <td className="py-2 text-[var(--text-secondary)]">Дата и время окончания подачи</td>
@@ -213,32 +213,32 @@ export default function TenderCard({ tender, onMarksChange, currentMarks }) {
               </tr>
               <tr className="border-b border-[var(--border)]">
                 <td className="py-2 text-[var(--text-secondary)]">Дата подведения итогов</td>
-                <td className="py-2 text-white">{tender.summarizing_date ? new Date(tender.summarizing_date).toLocaleDateString("ru-RU") : "—"}</td>
+                <td className="py-2 text-[var(--text-primary)]">{tender.summarizing_date ? new Date(tender.summarizing_date).toLocaleDateString("ru-RU") : "—"}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <div className="mb-6">
-          <div className="text-sm font-semibold text-white mb-3">Документы закупки</div>
+          <div className="text-sm font-semibold text-[var(--text-primary)] mb-3">Документы закупки</div>
           <div className="text-sm text-[var(--text-secondary)]">Документы не загружены</div>
-          <button className="mt-2 flex items-center gap-2 text-sm text-[var(--accent)] hover:text-white transition-colors">
+          <button className="mt-2 flex items-center gap-2 text-sm text-[var(--accent)] hover:text-[var(--text-primary)] transition-colors">
             <Download size={14} /> Скачать одним архивом
           </button>
         </div>
 
         <div className="flex items-center justify-between pt-4 border-t border-[var(--border)] text-xs text-[var(--text-secondary)]">
           <span>Извещение № {tender.external_id || "—"}</span>
-          <a href={tender.source_url || "#"} target="_blank" className="flex items-center gap-1 text-[var(--accent)] hover:text-white transition-colors">
+          <a href={tender.source_url || "#"} target="_blank" className="flex items-center gap-1 text-[var(--accent)] hover:text-[var(--text-primary)] transition-colors">
             <ExternalLink size={12} /> {tender.source || "источник"}
           </a>
         </div>
 
         <div className="flex items-center gap-3 mt-4">
-          <button className="flex-1 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors">
+          <button className="flex-1 py-2.5 rounded-lg bg-[var(--accent)] text-[var(--text-primary)] text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors">
             Подготовить заявку
           </button>
-          <button className="px-4 py-2.5 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm hover:text-white transition-colors">
+          <button className="px-4 py-2.5 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm hover:text-[var(--text-primary)] transition-colors">
             <MessageCircle size={16} />
           </button>
         </div>

@@ -57,7 +57,7 @@ export default function Layout() {
         <div className="flex flex-1 overflow-hidden">
           {page === 'dashboard' ? (
             <>
-              <div className="w-[534px] flex-shrink-0 border-r border-[var(--border)]">
+              <div className="w-[481px] flex-shrink-0 border-r border-[var(--border)]">
                 <TenderList
                   onSelect={handleSelectTender}
                   selectedId={selectedTender?.id}

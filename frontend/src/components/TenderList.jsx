@@ -1,4 +1,4 @@
-import { Star, Calendar, Building2 } from "lucide-react";
+﻿import { Star, Calendar } from "lucide-react";
 
 export default function TenderList({ onSelect, selectedId, activeKey, tenderMarks = {}, tenders = [] }) {
 
@@ -36,8 +36,8 @@ export default function TenderList({ onSelect, selectedId, activeKey, tenderMark
     <div className="h-full overflow-y-auto bg-[var(--bg-primary)]">
       <div className="p-3">
         <div className="flex justify-between items-center mb-3">
-          <h1 className="text-lg font-bold text-white">Закупки</h1>
-          <div className="text-xs text-[var(--text-secondary)]">Найдено: <span className="font-semibold text-white">{tenders.length}</span></div>
+          <h1 className="text-lg font-bold text-[var(--text-primary)]">Закупки</h1>
+          <div className="text-xs text-[var(--text-secondary)]">Найдено: <span className="font-semibold text-[var(--text-primary)]">{tenders.length}</span></div>
         </div>
         {Object.entries(grouped).map(([date, dayTenders]) => (
           <div key={date} className="mb-4">
@@ -46,20 +46,20 @@ export default function TenderList({ onSelect, selectedId, activeKey, tenderMark
               <span className="text-xs font-medium text-[var(--text-secondary)] whitespace-nowrap">{getGroupLabel(date)} </span>
               <div className="h-px flex-1 bg-[var(--border)]"></div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {dayTenders.map((tender) => (
-                <div key={tender.id} onClick={() => onSelect && onSelect(tender)} className={`border hover:shadow-md transition-all duration-200 flex overflow-hidden cursor-pointer ${selectedId === tender.id ? 'border-blue-400 shadow-md bg-[var(--bg-secondary)]' : 'border-[var(--border)] bg-[var(--bg-secondary)]'}`}>
+                <div key={tender.id} onClick={() => onSelect && onSelect(tender)} className={`border border-white/10 bg-[var(--bg-secondary)]/5 backdrop-blur-md hover:bg-[var(--bg-secondary)]/10 hover:shadow-xl hover:shadow-black/20 transition-all duration-300 flex overflow-hidden cursor-pointer rounded-xl ${selectedId === tender.id ? 'border-blue-400 shadow-lg shadow-blue-500/20 bg-[var(--bg-secondary)]/10' : 'border-white/10 bg-[var(--bg-secondary)]/5'}`}>
                   <div className="w-1.5 flex-shrink-0" style={{ background: getStatusColor(tender) === 'transparent' ? 'transparent' : `linear-gradient(180deg, ${getStatusColor(tender)} 0%, ${getStatusColor(tender)}cc 100%)`, boxShadow: getStatusColor(tender) === 'transparent' ? 'none' : `0 0 8px ${getStatusColor(tender)}80` }} />
                   <div className="flex-1 p-3 min-w-0">
                     <div className="flex items-start gap-2">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-medium text-white leading-snug truncate">{tender.title}</h3>
-                        <p className="text-xs text-[var(--text-secondary)] mt-0.5 flex items-center gap-1"><Building2 className="h-3 w-3 flex-shrink-0" /><span className="truncate">{tender.customer?.name || tender.customer || "—"}</span></p>
+                        <h3 className="text-sm font-medium text-[var(--text-primary)] leading-snug line-clamp-2">{tender.title}</h3>
+                        
                       </div>
-                      <button className="text-yellow-500 hover:text-yellow-600 flex-shrink-0 mt-0.5"><Star className={tender.isFavorite ? "fill-current" : ""} size={16} /></button>
+                      
                     </div>
                     <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
-                      <div><p className="text-[var(--text-secondary)]">Цена</p><p className="font-semibold text-white">{tender.initial_price ? Number(tender.initial_price).toLocaleString('ru-RU') + ' ₽' : tender.price ? Number(tender.price).toLocaleString('ru-RU') + ' ₽' : '—'}</p></div>
+                      <div><p className="text-[var(--text-secondary)]">Цена</p><p className="font-semibold text-[var(--text-primary)]">{tender.initial_price ? Number(tender.initial_price).toLocaleString('ru-RU') + ' ₽' : tender.price ? Number(tender.price).toLocaleString('ru-RU') + ' ₽' : '—'}</p></div>
                       <div><p className="text-[var(--text-secondary)]">Дедлайн</p><p className="font-medium text-[var(--text-secondary)] flex items-center gap-0.5"><Calendar className="h-3 w-3" />{tender.submission_deadline ? new Date(tender.submission_deadline).toLocaleDateString('ru-RU') : tender.deadline || '—'}</p></div>
                       <div><p className="text-[var(--text-secondary)]">Статус</p><span className="inline-block px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-xs font-medium">{getStatusLabel(tender.status)}</span></div>
                     </div>

@@ -60,7 +60,7 @@ export default function KanbanBar({ tenders, onSelectTender, tenderMarks }) {
           <button
             key={col.id}
             onClick={() => setExpanded(expanded === col.id ? null : col.id)}
-            className={"flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex-1 justify-center " + (expanded === col.id ? "bg-[var(--bg-tertiary)] text-white" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white")}
+            className={"flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex-1 justify-center " + (expanded === col.id ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]")}
           >
             <div className={"w-2 h-2 rounded-full " + col.color} />
             {col.title}
@@ -90,11 +90,11 @@ export default function KanbanBar({ tenders, onSelectTender, tenderMarks }) {
                       className="bg-[var(--bg-tertiary)] p-2.5 rounded-lg border border-[var(--border)] cursor-pointer hover:border-[var(--accent)]/50 transition-colors flex items-center justify-between gap-3"
                     >
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-xs font-medium text-white truncate">{tender.title}</h4>
+                        <h4 className="text-xs font-medium text-[var(--text-primary)] truncate">{tender.title}</h4>
                         <p className="text-[10px] text-[var(--text-secondary)] truncate mt-0.5">{tender.customer?.name || tender.customer || ""}</p>
                       </div>
                       <div className="text-right flex-1 justify-center">
-                        {price && <div className="text-xs font-semibold text-white">{price} ₽</div>}
+                        {price && <div className="text-xs font-semibold text-[var(--text-primary)]">{price} ₽</div>}
                         {deadline && <div className="text-[10px] text-[var(--text-secondary)]">{deadline}</div>}
                       </div>
                     </div>

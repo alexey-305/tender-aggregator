@@ -28,13 +28,13 @@ function SortableCard({ tender, onSelect }) {
     <div ref={setNodeRef} style={style} {...attributes} onClick={() => onSelect(tender)}
       className="bg-[var(--bg-tertiary)] p-3 rounded-xl border border-[var(--border)] cursor-pointer hover:border-[var(--accent)]/50 transition-colors group">
       <div className="flex items-start gap-2">
-        <button {...listeners} className="mt-0.5 text-[var(--text-secondary)] hover:text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">
+        <button {...listeners} className="mt-0.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">
           <GripVertical size={14} />
         </button>
         <div className="flex-1 min-w-0">
-          <h4 className="text-xs font-medium text-white line-clamp-2 mb-1.5">{tender.title}</h4>
+          <h4 className="text-xs font-medium text-[var(--text-primary)] line-clamp-2 mb-1.5">{tender.title}</h4>
           <div className="flex items-center gap-2 text-[10px] text-[var(--text-secondary)]">
-            {price && <span className="font-semibold text-white">{price} RUB</span>}
+            {price && <span className="font-semibold text-[var(--text-primary)]">{price} RUB</span>}
             {tender.region && <span className="flex items-center gap-0.5"><MapPin size={10} /> {tender.region}</span>}
           </div>
         </div>
@@ -95,10 +95,10 @@ export default function Kanban() {
   return (
     <div className="h-screen flex flex-col bg-[var(--bg-primary)]">
       <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
-        <button onClick={() => navigate("/")} className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-white transition-colors">
+        <button onClick={() => navigate("/")} className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
           <ArrowLeft size={18} /> Назад
         </button>
-        <h1 className="text-lg font-bold text-white">Kanban-доска</h1>
+        <h1 className="text-lg font-bold text-[var(--text-primary)]">Kanban-доска</h1>
         <div className="w-20" />
       </div>
 
@@ -109,10 +109,10 @@ export default function Kanban() {
               <div className="flex items-center justify-between mb-3 px-1">
                 <div className="flex items-center gap-2">
                   <div className={"w-2.5 h-2.5 rounded-full " + col.color} />
-                  <h2 className="text-sm font-semibold text-white">{col.title}</h2>
+                  <h2 className="text-sm font-semibold text-[var(--text-primary)]">{col.title}</h2>
                   <span className="text-xs text-[var(--text-secondary)]">{columns[col.id]?.length || 0}</span>
                 </div>
-                <button className="p-1 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-white transition-colors">
+                <button className="p-1 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                   <Plus size={14} />
                 </button>
               </div>
