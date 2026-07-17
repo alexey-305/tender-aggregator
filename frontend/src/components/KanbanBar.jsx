@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useRef } from "react";
-import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 const COLUMNS = [
   { id: "new", title: "Новые", color: "bg-blue-500", markNames: [] },
@@ -28,19 +28,15 @@ export default function KanbanBar({ tenders, onSelectTender, tenderMarks }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [expanded]);
 
-  // Подсчёт закупок в каждой колонке на основе меток
   const getColumnTenders = (colId) => {
     const col = COLUMNS.find(c => c.id === colId);
     if (!col) return [];
-    
     if (colId === "new") {
-      // В "Новые" попадают закупки без меток
       return tenders.filter(t => !tenderMarks[t.id] || tenderMarks[t.id].length === 0);
     }
-    
     return tenders.filter(t => {
       const marks = tenderMarks[t.id] || [];
-      return marks.some(m => col.markNames.includes(m));
+      return marks.some(m => col.markNames.includes(m.name || m));
     });
   };
 
@@ -52,20 +48,19 @@ export default function KanbanBar({ tenders, onSelectTender, tenderMarks }) {
     }
     return tenders.filter(t => {
       const marks = tenderMarks[t.id] || [];
-      return marks.some(m => col.markNames.includes(m));
+      return marks.some(m => col.markNames.includes(m.name || m));
     }).length;
   };
 
-  const filteredTenders = expanded ? getColumnTenders(expanded) : [];
-
   return (
     <div className="border-b border-[var(--border)]" ref={panelRef}>
-      <div className="flex items-center px-4 py-2 gap-1 overflow-x-auto">
+      {/* Верхняя строка с кнопками колонок */}
+      <div className="flex items-center px-4 py-2 gap-2">
         {COLUMNS.map((col) => (
           <button
             key={col.id}
             onClick={() => setExpanded(expanded === col.id ? null : col.id)}
-            className={"flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex-shrink-0 " + (expanded === col.id ? "bg-[var(--bg-tertiary)] text-white" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white")}
+            className={"flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex-1 justify-center " + (expanded === col.id ? "bg-[var(--bg-tertiary)] text-white" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-white")}
           >
             <div className={"w-2 h-2 rounded-full " + col.color} />
             {col.title}
@@ -75,35 +70,39 @@ export default function KanbanBar({ tenders, onSelectTender, tenderMarks }) {
         ))}
       </div>
 
+      {/* Раскрывашка с плашками */}
       {expanded && (
-        <div className="max-h-64 overflow-y-auto border-t border-[var(--border)] bg-[var(--bg-secondary)]">
-          {filteredTenders.length === 0 ? (
-            <div className="text-xs text-[var(--text-secondary)] text-center py-8">Нет закупок в этой колонке</div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 p-3">
-              {filteredTenders.map((tender) => {
-                const price = tender.initial_price ? Number(tender.initial_price).toLocaleString("ru-RU") : "";
-                const marks = tenderMarks[tender.id] || [];
-                return (
-                  <div
-                    key={tender.id}
-                    onClick={() => { onSelectTender && onSelectTender(tender); setExpanded(null); }}
-                    className="bg-[var(--bg-tertiary)] p-3 rounded-xl border border-[var(--border)] cursor-pointer hover:border-[var(--accent)]/50 transition-colors"
-                  >
-                    <h4 className="text-xs font-medium text-white line-clamp-2 mb-1">{tender.title}</h4>
-                    {marks.length > 0 && (
-                      <div className="flex gap-1 mb-1 flex-wrap">
-                        {marks.map((m, i) => (
-                          <span key={i} className="px-1.5 py-0.5 rounded text-[9px] bg-[var(--bg-secondary)] text-[var(--text-secondary)]">{m}</span>
-                        ))}
+        <div className="max-h-56 overflow-y-auto border-t border-[var(--border)] bg-[var(--bg-secondary)]">
+          {(() => {
+            const colTenders = getColumnTenders(expanded);
+            if (colTenders.length === 0) {
+              return <div className="text-xs text-[var(--text-secondary)] text-center py-6">Нет закупок в этой колонке</div>;
+            }
+            return (
+              <div className="p-3 grid grid-cols-2 lg:grid-cols-3 gap-2">
+                {colTenders.map((tender) => {
+                  const price = tender.initial_price ? Number(tender.initial_price).toLocaleString("ru-RU") : "";
+                  const deadline = tender.submission_deadline ? new Date(tender.submission_deadline).toLocaleDateString("ru-RU") : "";
+                  return (
+                    <div
+                      key={tender.id}
+                      onClick={() => { onSelectTender && onSelectTender(tender); setExpanded(null); }}
+                      className="bg-[var(--bg-tertiary)] p-2.5 rounded-lg border border-[var(--border)] cursor-pointer hover:border-[var(--accent)]/50 transition-colors flex items-center justify-between gap-3"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-xs font-medium text-white truncate">{tender.title}</h4>
+                        <p className="text-[10px] text-[var(--text-secondary)] truncate mt-0.5">{tender.customer?.name || tender.customer || ""}</p>
                       </div>
-                    )}
-                    {price && <span className="text-[10px] font-semibold text-white">{price} RUB</span>}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                      <div className="text-right flex-1 justify-center">
+                        {price && <div className="text-xs font-semibold text-white">{price} ₽</div>}
+                        {deadline && <div className="text-[10px] text-[var(--text-secondary)]">{deadline}</div>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>
